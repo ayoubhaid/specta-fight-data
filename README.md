@@ -8,7 +8,7 @@ Sport-agnostic enrichment service for Specta. Current adapters: ESPN event score
 - **UFCalendar** enriches only fighters found in ESPN event cards. Profile payloads include bio, records, career statistics, and Wikimedia Commons/CC portraits with required artist/license credit.
 - **Wikimedia Commons** is the image provenance represented by UFCalendar's returned image metadata. The app must show the artist and license whenever it displays a portrait.
 
-The collector intentionally does not request odds, odds history, pick'em, predictions, or any betting-related fields.
+The collector intentionally does not request odds, odds history, pick'em, predictions, rankings, or bout-by-bout technical statistics.
 
 ## Run locally
 
@@ -30,7 +30,7 @@ Optional:
 - `ESPN_MMA_SCOREBOARD_URL`
 - `FIGHT_DATA_CACHE` (default `data/cache/fight-data.json`)
 
-The local cache is git-ignored. Do not commit provider records or API keys. The UFCalendar free quota for new accounts is currently 100 requests/month, so the collector only looks up previously unseen ESPN competitors and caches profiles. Each new profile costs a roster search + profile request. Do not schedule frequent full refreshes.
+The local cache is git-ignored. Do not commit provider records or API keys. The UFCalendar free quota for new accounts is currently 100 requests/month, so the collector only looks up previously unseen ESPN competitors and caches profiles. Each new profile costs a roster search + profile request. The API's profile response also contains fields that this project deliberately discards. Do not schedule frequent full refreshes.
 
 ## Output shape
 
