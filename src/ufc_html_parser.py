@@ -17,11 +17,12 @@ class Node:
         self.children: list[Node | str] = []
 
     def text(self) -> str:
-        return " ".join(
-            part for child in self.children
-            for part in ([child] if isinstance(child, str) else [child.text()])
-            if part
-        ).strip()
+        parts = []
+        for child in self.children:
+            value = child if isinstance(child, str) else child.text()
+            if value:
+                parts.append(value)
+        return " ".join(parts).strip()
 
 
 class TreeParser(HTMLParser):
@@ -70,7 +71,7 @@ def by_class(root: Node, class_name: str) -> Optional[Node]:
 def clean(node: Optional[Node]) -> Optional[str]:
     if node is None:
         return None
-    value = re.sub(r"\\s+", " ", node.text()).strip()
+    value = re.sub(r"\s+", " ", node.text()).strip()
     return value or None
 
 
@@ -89,11 +90,12 @@ def parse_athlete_html(html: str, source_file: str = "unknown.html") -> dict:
     if not name:
         raise ValueError(f"No .hero__title found in {source_file}; check the saved HTML/selectors.")
 
+    slug = slug_from_path(Path(source_file))
     return {
         "schema_version": 1,
         "provider": "ufc_html_local_sample",
-        "provider_id": slug_from_path(Path(source_file)),
-        "slug": slug_from_path(Path(source_file)),
+        "provider_id": slug,
+        "slug": slug,
         "name": name,
         "nickname": nickname,
         "record": {
@@ -134,7 +136,7 @@ def main():
             print(f"SKIP {file}: {exc}")
 
     Path(args.output).write_text(
-        json.dumps({"schema_version": 1, "fighters": fighters}, indent=2, ensure_ascii=False) + "\\n",
+        json.dumps({"schema_version": 1, "fighters": fighters}, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8"
     )
     print(f"Wrote {len(fighters)} fighter profile(s) to {args.output}")

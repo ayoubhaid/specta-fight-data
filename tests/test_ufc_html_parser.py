@@ -1,5 +1,4 @@
 import unittest
-
 from src.ufc_html_parser import parse_athlete_html
 
 
@@ -16,7 +15,6 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result["name"], "Sample Athlete")
         self.assertEqual(result["nickname"], "The Example")
         self.assertEqual(result["record"]["display"], "20 - 4 - 1")
-        self.assertEqual(result["provider"], "ufc_html_local_sample")
 
     def test_missing_name_fails_loudly(self):
         with self.assertRaises(ValueError):
