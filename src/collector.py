@@ -121,20 +121,40 @@ def find_fighter(name: str, api_key: str) -> dict | None:
     return None
 
 
+def inches_to_cm(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        return round(float(value) * 2.54, 1)
+    except (TypeError, ValueError):
+        return None
+
+
 def normalize_profile(profile: dict, fighter_ref: dict) -> dict:
-    """Keep a stable Specta DTO while retaining source fields for future schema growth."""
+    """Map UFCalendar's documented Fighter response to Specta's profile DTO."""
     records = profile.get("records") or {}
-    stats = profile.get("stats")
-    image = profile.get("image")
-    if isinstance(image, dict):
+    pro_record = records.get("pro_mma") if isinstance(records, dict) else None
+    images = profile.get("images") or []
+    image = next(
+        (item for item in images if isinstance(item, dict) and item.get("url")),
+        None
+    )
+    normalized_image = None
+    if image:
         normalized_image = {
             "url": image.get("url"),
             "artist": image.get("artist"),
             "license": image.get("license"),
-            "attribution_url": image.get("attribution_url") or image.get("source_url")
+            "license_url": image.get("license_url"),
+            "attribution_url": image.get("source_page")
         }
-    else:
-        normalized_image = None
+
+    weight_kg = None
+    if profile.get("weight_lbs") is not None:
+        try:
+            weight_kg = round(float(profile["weight_lbs"]) * 0.45359237, 1)
+        except (TypeError, ValueError):
+            pass
 
     return {
         "schema_version": 1,
@@ -142,18 +162,17 @@ def normalize_profile(profile: dict, fighter_ref: dict) -> dict:
         "provider_id": str(profile.get("id") or fighter_ref.get("id")),
         "slug": profile.get("slug") or fighter_ref.get("slug"),
         "name": profile.get("name") or fighter_ref.get("name"),
-        "nickname": profile.get("nickname"),
+        "nickname": profile.get("nickname") or fighter_ref.get("nickname"),
         "nationality": profile.get("nationality") or fighter_ref.get("nationality"),
         "country_code": profile.get("country_code") or fighter_ref.get("country_code"),
-        "date_of_birth": profile.get("date_of_birth"),
-        "age": profile.get("age"),
-        "height_cm": profile.get("height_cm"),
-        "reach_cm": profile.get("reach_cm"),
+        "date_of_birth": profile.get("dob"),
+        "height_cm": inches_to_cm(profile.get("height_inches")),
+        "reach_cm": inches_to_cm(profile.get("reach_inches")),
+        "weight_kg": weight_kg,
         "stance": profile.get("stance"),
-        "division": profile.get("division"),
-        "record": records.get("pro_mma") if isinstance(records, dict) else None,
-        "promotion_records": records,
-        "career_stats": stats if stats is not None else profile.get("career_stats"),
+        "team": profile.get("team"),
+        "birthplace": profile.get("birthplace"),
+        "record": pro_record,
         "image": normalized_image,
         "source_provenance": {
             "profile": "UFCalendar Fight API",
