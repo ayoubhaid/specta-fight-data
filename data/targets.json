@@ -1,5 +1,5 @@
 {
   "schema_version": 1,
-  "promotion": "ufc",
-  "fighters": []
+  "promotions": ["ufc"],
+  "notes": "ESPN remains event source. Collector discovers competitors from ESPN and enriches newly seen fighters via UFCalendar."
 }

@@ -1,49 +1,55 @@
 # Specta Fight Data
 
-A sport-agnostic data enrichment layer for Specta. ESPN can remain the primary event source while this project explores normalized fighter-profile data.
+Sport-agnostic enrichment service for Specta. Current adapters: ESPN event scoreboard + UFCalendar fighter profiles. No UFC.com crawler is included.
 
-## Local UFC HTML parser (learning tool)
+## Providers
 
-This parser reads **HTML files already saved on your device**. It makes no HTTP requests, does not crawl UFC.com, and does not bypass access controls.
+- **ESPN** supplies event schedule and competitor identities from its public MMA scoreboard JSON. Override the URL with `ESPN_MMA_SCOREBOARD_URL` if ESPN changes its route.
+- **UFCalendar** enriches only fighters found in ESPN event cards. Profile payloads include bio, records, career statistics, and Wikimedia Commons/CC portraits with required artist/license credit.
+- **Wikimedia Commons** is the image provenance represented by UFCalendar's returned image metadata. The app must show the artist and license whenever it displays a portrait.
 
-It extracts only the selectors in the supplied walkthrough:
-- `.hero__title` — fighter name
-- `.hero__nickname` — nickname
-- `.hero__record` — displayed record
+The collector intentionally does not request odds, odds history, pick'em, predictions, or any betting-related fields.
 
-The supplied walkthrough does not establish selectors for reach, stance, height, stats, portraits, or fight history, so those fields remain null/empty rather than being guessed.
+## Run locally
 
-### Run it
-
-Requires Python 3.10+; no third-party packages.
+Python 3.10+; standard library only.
 
 ```bash
-python -m src.ufc_html_parser path/to/saved-athlete.html --output fighters.local.json
+export UFCAL_KEY="your-key"
+python -m src.collector
 ```
 
-Or pass a directory containing saved `.html` files:
+Windows PowerShell:
 
-```bash
-python -m src.ufc_html_parser ./saved-athlete-pages/ -o fighters.local.json
+```powershell
+$env:UFCAL_KEY="your-key"
+python -m src.collector
 ```
 
-The output is a local JSON file. Review source terms before collecting or reusing any page content. Do not commit saved athlete-page HTML or copied provider records to this public repository.
+Optional:
+- `ESPN_MMA_SCOREBOARD_URL`
+- `FIGHT_DATA_CACHE` (default `data/cache/fight-data.json`)
 
-### Tests
+The local cache is git-ignored. Do not commit provider records or API keys. The UFCalendar free quota for new accounts is currently 100 requests/month, so the collector only looks up previously unseen ESPN competitors and caches profiles. Each new profile costs a roster search + profile request. Do not schedule frequent full refreshes.
+
+## Output shape
+
+`data/cache/fight-data.json` contains:
+- `events[]`: ESPN event + competitor rows
+- `fighters{}`: normalized profile keyed by normalized name
+- `image`: URL + artist + license + attribution URL
+
+Unknown fields stay null. Name joins are exact only; ambiguous matches are skipped.
+
+## Terms / delivery
+
+UFCalendar permits showing its facts in your own app and storing them in your own systems, but prohibits exposing its records as a third-party API or public downloadable data dump. This repository is public, so the generated cache is not committed or published through GitHub Pages. Keep it private/local or use a delivery path that serves data only to Specta and its users, consistent with the provider terms.
+
+UFCalendar docs: https://api.ufcalendar.com/docs
+UFCalendar terms: https://www.ufcalendar.com/developers/terms
+
+## Tests
 
 ```bash
 python -m unittest discover -s tests -v
 ```
-
-## Other provider research
-
-UFCalendar documents roster search, fighter profiles, career history, career statistics, rankings history, and comparison:
-- API docs: https://api.ufcalendar.com/docs
-- Terms: https://www.ufcalendar.com/developers/terms
-- Base URL: https://api.ufcalendar.com/v1
-
-Verify the quota shown by your own account. Keep API credentials out of Android clients and out of Git. Provider data and image assets remain subject to their respective terms and licenses.
-
-## Architecture
-
-ESPN remains the event/bout source. Provider adapters enrich fighter profiles into `schemas/fighter.schema.json`. Keep source provenance, treat unknown values as null, and never silently join ambiguous athlete matches.
