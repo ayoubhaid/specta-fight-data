@@ -184,8 +184,6 @@ def normalize_profile(profile: dict, fighter_ref: dict) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--include-history", action="store_true", help="Fetch full career timelines for newly discovered fighters (one extra API request each).")
-    parser.add_argument("--include-rankings", action="store_true", help="Fetch ranking history for newly discovered fighters (one extra API request each).")
     args = parser.parse_args()
     api_key = os.getenv("UFCAL_KEY")
     if not api_key:
@@ -219,23 +217,6 @@ def main() -> int:
             profile_response = uf_get(f"fighters/{urllib.parse.quote(str(ref.get('slug') or ref.get('id')), safe='')}", api_key)
             profile = profile_response.get("data") or {}
             normalized = normalize_profile(profile, ref)
-            # History and rankings are opt-in to protect the small free monthly quota.
-            if args.include_history:
-                normalized["history"] = (uf_get(
-                    f"fighters/{urllib.parse.quote(str(ref.get('slug') or ref.get('id')), safe='')}/history",
-                    api_key
-                ).get("data") or [])
-                time.sleep(6.2)
-            else:
-                normalized["history"] = []
-            if args.include_rankings:
-                normalized["rankings_history"] = (uf_get(
-                    f"fighters/{urllib.parse.quote(str(ref.get('slug') or ref.get('id')), safe='')}/rankings",
-                    api_key
-                ).get("data") or [])
-                time.sleep(6.2)
-            else:
-                normalized["rankings_history"] = []
             existing[key] = normalized
             print(f"ADDED: {name}")
             # Keep request rate below the documented 10/minute cap.
