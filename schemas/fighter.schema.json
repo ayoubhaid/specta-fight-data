@@ -3,46 +3,233 @@
   "$id": "https://specta.invalid/schemas/fighter.schema.json",
   "title": "Specta normalized fighter",
   "type": "object",
-  "required": ["schema_version", "provider", "provider_id", "name"],
+  "required": [
+    "schema_version",
+    "provider",
+    "provider_id",
+    "name"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
-    "provider": {"type": "string"},
-    "provider_id": {"type": ["string", "integer"]},
-    "slug": {"type": ["string", "null"]},
-    "name": {"type": "string", "minLength": 1},
-    "nickname": {"type": ["string", "null"]},
-    "country_code": {"type": ["string", "null"]},
-    "date_of_birth": {"type": ["string", "null"], "format": "date"},
-    "age": {"type": ["integer", "null"], "minimum": 0},
-    "height_cm": {"type": ["number", "null"], "minimum": 0},
-    "reach_cm": {"type": ["number", "null"], "minimum": 0},
-    "stance": {"type": ["string", "null"]},
-    "division": {"type": ["string", "null"]},
+    "schema_version": {
+      "const": 1
+    },
+    "provider": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "slug": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nickname": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "date_of_birth": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "age": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "height_cm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "reach_cm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "stance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "division": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "record": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "wins": {"type": ["integer", "null"], "minimum": 0},
-        "losses": {"type": ["integer", "null"], "minimum": 0},
-        "draws": {"type": ["integer", "null"], "minimum": 0},
-        "no_contests": {"type": ["integer", "null"], "minimum": 0},
-        "display": {"type": ["string", "null"]}
+        "wins": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "losses": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "draws": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "no_contests": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "display": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       },
       "additionalProperties": true
     },
     "image": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "url": {"type": ["string", "null"], "format": "uri"},
-        "artist": {"type": ["string", "null"]},
-        "license": {"type": ["string", "null"]},
-        "attribution_url": {"type": ["string", "null"], "format": "uri"}
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "artist": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "attribution_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "license_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
       },
       "additionalProperties": true
     },
-    "career_stats": {"type": ["object", "array", "null"]},
-    "history": {"type": "array", "items": {"type": "object"}},
-    "source_updated_at": {"type": ["string", "null"], "format": "date-time"},
-    "retrieved_at": {"type": "string", "format": "date-time"}
+    "career_stats": {
+      "type": [
+        "object",
+        "array",
+        "null"
+      ]
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "source_updated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "weight_kg": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "team": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "birthplace": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
   },
   "additionalProperties": true
 }
