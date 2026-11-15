@@ -5,6 +5,7 @@ No UFC website scraping. No odds, picks, predictions, or betting fields are requ
 from __future__ import annotations
 
 import json
+import argparse
 import os
 import re
 import sys
@@ -163,6 +164,10 @@ def normalize_profile(profile: dict, fighter_ref: dict) -> dict:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--include-history", action="store_true", help="Fetch full career timelines for newly discovered fighters (one extra API request each).")
+    parser.add_argument("--include-rankings", action="store_true", help="Fetch ranking history for newly discovered fighters (one extra API request each).")
+    args = parser.parse_args()
     api_key = os.getenv("UFCAL_KEY")
     if not api_key:
         print("Missing UFCAL_KEY. Add it as an environment variable; never commit it.", file=sys.stderr)
@@ -194,7 +199,25 @@ def main() -> int:
                 continue
             profile_response = uf_get(f"fighters/{urllib.parse.quote(str(ref.get('slug') or ref.get('id')), safe='')}", api_key)
             profile = profile_response.get("data") or {}
-            existing[key] = normalize_profile(profile, ref)
+            normalized = normalize_profile(profile, ref)
+            # History and rankings are opt-in to protect the small free monthly quota.
+            if args.include_history:
+                normalized["history"] = (uf_get(
+                    f"fighters/{urllib.parse.quote(str(ref.get('slug') or ref.get('id')), safe='')}/history",
+                    api_key
+                ).get("data") or [])
+                time.sleep(6.2)
+            else:
+                normalized["history"] = []
+            if args.include_rankings:
+                normalized["rankings_history"] = (uf_get(
+                    f"fighters/{urllib.parse.quote(str(ref.get('slug') or ref.get('id')), safe='')}/rankings",
+                    api_key
+                ).get("data") or [])
+                time.sleep(6.2)
+            else:
+                normalized["rankings_history"] = []
+            existing[key] = normalized
             print(f"ADDED: {name}")
             # Keep request rate below the documented 10/minute cap.
             time.sleep(6.2)
