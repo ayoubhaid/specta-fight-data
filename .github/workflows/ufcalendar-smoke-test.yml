@@ -1,0 +1,21 @@
+name: UFCalendar connection test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test UFCalendar key and one fighter profile
+        env:
+          UFCAL_KEY: ${{ secrets.UFCAL_KEY }}
+        run: python scripts/ufcalendar_smoke_test.py
