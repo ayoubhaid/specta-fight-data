@@ -1,39 +1,49 @@
 # Specta Fight Data
 
-A sport-agnostic data enrichment layer for Specta. ESPN can remain the primary event source while this project explores a normalized fighter-profile schema for future fight sports.
+A sport-agnostic data enrichment layer for Specta. ESPN can remain the primary event source while this project explores normalized fighter-profile data.
 
-## Initial provider research
+## Local UFC HTML parser (learning tool)
 
-UFCalendar documents roster search, fighter profiles, career history, career statistics, rankings history, and a two-fighter comparison endpoint:
+This parser reads **HTML files already saved on your device**. It makes no HTTP requests, does not crawl UFC.com, and does not bypass access controls.
+
+It extracts only the selectors in the supplied walkthrough:
+- `.hero__title` — fighter name
+- `.hero__nickname` — nickname
+- `.hero__record` — displayed record
+
+The supplied walkthrough does not establish selectors for reach, stance, height, stats, portraits, or fight history, so those fields remain null/empty rather than being guessed.
+
+### Run it
+
+Requires Python 3.10+; no third-party packages.
+
+```bash
+python -m src.ufc_html_parser path/to/saved-athlete.html --output fighters.local.json
+```
+
+Or pass a directory containing saved `.html` files:
+
+```bash
+python -m src.ufc_html_parser ./saved-athlete-pages/ -o fighters.local.json
+```
+
+The output is a local JSON file. Review source terms before collecting or reusing any page content. Do not commit saved athlete-page HTML or copied provider records to this public repository.
+
+### Tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## Other provider research
+
+UFCalendar documents roster search, fighter profiles, career history, career statistics, rankings history, and comparison:
 - API docs: https://api.ufcalendar.com/docs
 - Terms: https://www.ufcalendar.com/developers/terms
 - Base URL: https://api.ufcalendar.com/v1
 
-The documentation reports 100 requests/month for new free accounts (10/minute, no card). Accounts created before 11 November 2026 retain 1,000/month. Verify your account's actual quota before implementing automated refresh. Fighter image results are Creative Commons / public-domain Wikimedia images and require the artist and license credit to be displayed.
+Verify the quota shown by your own account. Keep API credentials out of Android clients and out of Git. Provider data and image assets remain subject to their respective terms and licenses.
 
-**Important usage constraint:** the provider's terms allow caching and serving selected/transformed fields inside your own app and to your own app's users. They prohibit turning provider records into a public third-party API, dump, or data feed. Do not enable public GitHub Pages for raw provider records. Keep provider credentials server-side and return only the fields needed by Specta through a deployment model permitted by the provider.
+## Architecture
 
-## API endpoints of interest
-
-- `GET /v1/fighters?q=...` — roster search
-- `GET /v1/fighters/{idOrSlug}` — fighter bio
-- `GET /v1/fighters/{idOrSlug}/history` — multi-promotion career timeline
-- `GET /v1/fighters/{idOrSlug}/stats` — career records/statistics
-- `GET /v1/fighters/{idOrSlug}/rankings` — rankings history
-- `GET /v1/compare?a=...&b=...` — tale of the tape
-
-ESPN continues to own event schedules and event/bout status in the first integration. This service only enriches athlete profiles.
-
-## Project status
-
-Repository scaffold and provider research are in progress. No credentials are stored here. No fighter records are bundled in this repository.
-
-## Next integration steps
-
-1. Add your provider key as a repository secret named `UFCAL_KEY` (never commit it).
-2. Confirm the response schema against a real fighter profile and validate nullable fields.
-3. Add a private-cache sync workflow that requests only fighters participating in ESPN events Specta displays.
-4. Have Specta fetch the normalized selected profile fields from your own app-controlled/private delivery path.
-5. Add additional provider adapters behind the same normalized schema when needed.
-
-Project code may use the MIT license. Upstream data and images remain subject to their respective terms and licenses.
+ESPN remains the event/bout source. Provider adapters enrich fighter profiles into `schemas/fighter.schema.json`. Keep source provenance, treat unknown values as null, and never silently join ambiguous athlete matches.

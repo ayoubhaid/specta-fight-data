@@ -1,3 +1,3 @@
-# Implementation area
+# Local HTML parser
 
-Provider adapter and normalized DTO implementation will be added after a real UFCalendar response is inspected. Do not guess field mappings from undocumented payload assumptions. Keep the API key in environment/secrets only.
+`ufc_html_parser.py` parses user-supplied local HTML snapshots only. It intentionally contains no HTTP client, crawler, URL fetcher, or pagination loop.
